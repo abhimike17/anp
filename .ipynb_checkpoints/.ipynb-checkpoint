@@ -1,0 +1,499 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    " # Table of Contents\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from collections import defaultdict,Counter, namedtuple\n",
+    "from operator import itemgetter, attrgetter\n",
+    "from urllib.request import Request, urlopen\n",
+    "import json\n",
+    "import pandas as pd\n",
+    "import shlex\n",
+    "import json\n",
+    "from IPython.display import display, Javascript\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "api = 'http://127.0.0.1:8000/pdatas/'\n",
+    "\n",
+    "json_obj = urlopen(api)\n",
+    "pdata = json.load(json_obj)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y = filter(lambda x:x['insect'] == \"Bombus rufocinctus\", pdata)\n",
+    "x = list(y)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Counter({'37.915': 161, '37.88588': 51, '39.37726': 4, '47.96427117': 2, '47.97031627': 2, '42.70929': 1, '42.67807': 1, '47.91342782': 1, '47.96734969': 1, '47.96492885': 1, '47.96478892': 1, '47.30184': 1})\n",
+      "Counter({'-119.262': 161, '-119.257': 51, '-105.8006': 4, '-99.00106265': 2, '-98.99707456': 2, '-88.23171': 1, '-88.2762': 1, '-99.03414694': 1, '-98.99697661': 1, '-98.99932748': 1, '-98.99795614': 1, '-97.58368': 1})\n"
+     ]
+    }
+   ],
+   "source": [
+    "lat = Counter(k['latitude'] for k in x)\n",
+    "long = Counter(k['longitude'] for k in x)\n",
+    "\n",
+    "\n",
+    "print(lat)\n",
+    "print(long)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "latlist = []\n",
+    "longlist = []\n",
+    "count = []\n",
+    "for k in lat:\n",
+    "    if k not in latlist:\n",
+    "        latlist.append(k)\n",
+    "        \n",
+    "for k in long:\n",
+    "    if k not in longlist:\n",
+    "        longlist.append(k)\n",
+    "        \n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Counter({'Pedicularis groenlandica': 161, 'Pedicularis attollens': 51, 'Pedicularis crenulata': 4, 'Amorpha canescens': 2, 'Dalea purpurea': 2, 'Asclepias syriaca': 1, 'Malus sylvestris': 1, 'Bromus inermis': 1, 'Lactuca tatarica': 1, 'Spiraea alba': 1, 'Symphoricarpos occidentalis': 1, 'Oligoneuron rigidum': 1})\n"
+     ]
+    }
+   ],
+   "source": [
+    "p = Counter(k['plant'] for k in x)\n",
+    "print(p)\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Asclepias syriaca\n",
+      "Malus sylvestris\n",
+      "Pedicularis crenulata\n",
+      "Pedicularis attollens\n",
+      "Pedicularis groenlandica\n",
+      "Bromus inermis\n",
+      "Amorpha canescens\n",
+      "Lactuca tatarica\n",
+      "Spiraea alba\n",
+      "Dalea purpurea\n",
+      "Symphoricarpos occidentalis\n",
+      "Oligoneuron rigidum\n",
+      "['Asclepias syriaca', 'Malus sylvestris', 'Pedicularis crenulata', 'Pedicularis attollens', 'Pedicularis groenlandica', 'Bromus inermis', 'Amorpha canescens', 'Lactuca tatarica', 'Spiraea alba', 'Dalea purpurea', 'Symphoricarpos occidentalis', 'Oligoneuron rigidum']\n"
+     ]
+    }
+   ],
+   "source": [
+    "i = []\n",
+    "for k in p:\n",
+    "    if k not in i:\n",
+    "        i.append(k)\n",
+    "        print(k)\n",
+    "\n",
+    "print(i)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>latitude</th>\n",
+       "      <th>longitude</th>\n",
+       "      <th>plant</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>42.70929</td>\n",
+       "      <td>-88.23171</td>\n",
+       "      <td>Asclepias syriaca</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>42.67807</td>\n",
+       "      <td>-88.2762</td>\n",
+       "      <td>Malus sylvestris</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>39.37726</td>\n",
+       "      <td>-105.8006</td>\n",
+       "      <td>Pedicularis crenulata</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>37.88588</td>\n",
+       "      <td>-119.257</td>\n",
+       "      <td>Pedicularis attollens</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>37.915</td>\n",
+       "      <td>-119.262</td>\n",
+       "      <td>Pedicularis groenlandica</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   latitude  longitude                     plant\n",
+       "0  42.70929  -88.23171         Asclepias syriaca\n",
+       "1  42.67807   -88.2762          Malus sylvestris\n",
+       "2  39.37726  -105.8006     Pedicularis crenulata\n",
+       "3  37.88588   -119.257     Pedicularis attollens\n",
+       "4    37.915   -119.262  Pedicularis groenlandica"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_counters = pd.DataFrame(\n",
+    "    {\n",
+    "     'latitude' : latlist,\n",
+    "     'longitude' : longlist,\n",
+    "        'plant': i\n",
+    "    })\n",
+    "df_counters.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[['42.70929', '-88.23171'], ['42.67807', '-88.2762'], ['39.37726', '-105.8006'], ['37.88588', '-119.257'], ['37.915', '-119.262'], ['47.91342782', '-99.03414694'], ['47.96734969', '-98.99697661'], ['47.96427117', '-99.00106265'], ['47.96492885', '-98.99932748'], ['47.97031627', '-98.99707456'], ['47.96478892', '-98.99795614'], ['47.30184', '-97.58368']]\n",
+      "[42.67807, -88.2762]\n"
+     ]
+    }
+   ],
+   "source": [
+    "locations = df_counters[['latitude','longitude']]\n",
+    "locationlist=locations.values.tolist()\n",
+    "len(locationlist)\n",
+    "print(locationlist)\n",
+    "newlist = []\n",
+    "for k in locationlist:\n",
+    "    j = [float(i) for i in k]\n",
+    "    if j not in newlist:\n",
+    "        newlist.append(j)\n",
+    "print(newlist[1])\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import folium\n",
+    "\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div style=\"width:100%;\"><div style=\"position:relative;width:100%;height:0;padding-bottom:60%;\"><iframe src=\"data:text/html;charset=utf-8;base64,PCFET0NUWVBFIGh0bWw+CjxoZWFkPiAgICAKICAgIDxtZXRhIGh0dHAtZXF1aXY9ImNvbnRlbnQtdHlwZSIgY29udGVudD0idGV4dC9odG1sOyBjaGFyc2V0PVVURi04IiAvPgogICAgPHNjcmlwdD5MX1BSRUZFUl9DQU5WQVM9ZmFsc2U7IExfTk9fVE9VQ0g9ZmFsc2U7IExfRElTQUJMRV8zRD1mYWxzZTs8L3NjcmlwdD4KICAgIDxzY3JpcHQgc3JjPSJodHRwczovL2Nkbi5qc2RlbGl2ci5uZXQvbnBtL2xlYWZsZXRAMS4zLjQvZGlzdC9sZWFmbGV0LmpzIj48L3NjcmlwdD4KICAgIDxzY3JpcHQgc3JjPSJodHRwczovL2FqYXguZ29vZ2xlYXBpcy5jb20vYWpheC9saWJzL2pxdWVyeS8xLjExLjEvanF1ZXJ5Lm1pbi5qcyI+PC9zY3JpcHQ+CiAgICA8c2NyaXB0IHNyYz0iaHR0cHM6Ly9tYXhjZG4uYm9vdHN0cmFwY2RuLmNvbS9ib290c3RyYXAvMy4yLjAvanMvYm9vdHN0cmFwLm1pbi5qcyI+PC9zY3JpcHQ+CiAgICA8c2NyaXB0IHNyYz0iaHR0cHM6Ly9jZG5qcy5jbG91ZGZsYXJlLmNvbS9hamF4L2xpYnMvTGVhZmxldC5hd2Vzb21lLW1hcmtlcnMvMi4wLjIvbGVhZmxldC5hd2Vzb21lLW1hcmtlcnMuanMiPjwvc2NyaXB0PgogICAgPGxpbmsgcmVsPSJzdHlsZXNoZWV0IiBocmVmPSJodHRwczovL2Nkbi5qc2RlbGl2ci5uZXQvbnBtL2xlYWZsZXRAMS4zLjQvZGlzdC9sZWFmbGV0LmNzcyIvPgogICAgPGxpbmsgcmVsPSJzdHlsZXNoZWV0IiBocmVmPSJodHRwczovL21heGNkbi5ib290c3RyYXBjZG4uY29tL2Jvb3RzdHJhcC8zLjIuMC9jc3MvYm9vdHN0cmFwLm1pbi5jc3MiLz4KICAgIDxsaW5rIHJlbD0ic3R5bGVzaGVldCIgaHJlZj0iaHR0cHM6Ly9tYXhjZG4uYm9vdHN0cmFwY2RuLmNvbS9ib290c3RyYXAvMy4yLjAvY3NzL2Jvb3RzdHJhcC10aGVtZS5taW4uY3NzIi8+CiAgICA8bGluayByZWw9InN0eWxlc2hlZXQiIGhyZWY9Imh0dHBzOi8vbWF4Y2RuLmJvb3RzdHJhcGNkbi5jb20vZm9udC1hd2Vzb21lLzQuNi4zL2Nzcy9mb250LWF3ZXNvbWUubWluLmNzcyIvPgogICAgPGxpbmsgcmVsPSJzdHlsZXNoZWV0IiBocmVmPSJodHRwczovL2NkbmpzLmNsb3VkZmxhcmUuY29tL2FqYXgvbGlicy9MZWFmbGV0LmF3ZXNvbWUtbWFya2Vycy8yLjAuMi9sZWFmbGV0LmF3ZXNvbWUtbWFya2Vycy5jc3MiLz4KICAgIDxsaW5rIHJlbD0ic3R5bGVzaGVldCIgaHJlZj0iaHR0cHM6Ly9yYXdjZG4uZ2l0aGFjay5jb20vcHl0aG9uLXZpc3VhbGl6YXRpb24vZm9saXVtL21hc3Rlci9mb2xpdW0vdGVtcGxhdGVzL2xlYWZsZXQuYXdlc29tZS5yb3RhdGUuY3NzIi8+CiAgICA8c3R5bGU+aHRtbCwgYm9keSB7d2lkdGg6IDEwMCU7aGVpZ2h0OiAxMDAlO21hcmdpbjogMDtwYWRkaW5nOiAwO308L3N0eWxlPgogICAgPHN0eWxlPiNtYXAge3Bvc2l0aW9uOmFic29sdXRlO3RvcDowO2JvdHRvbTowO3JpZ2h0OjA7bGVmdDowO308L3N0eWxlPgogICAgCiAgICA8bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLAogICAgICAgIGluaXRpYWwtc2NhbGU9MS4wLCBtYXhpbXVtLXNjYWxlPTEuMCwgdXNlci1zY2FsYWJsZT1ubyIgLz4KICAgIDxzdHlsZT4jbWFwX2Q4NTQ4MWZlY2YzMjRmYWQ4ZmM2MzViYTQ5MTk2OWUzIHsKICAgICAgICBwb3NpdGlvbjogcmVsYXRpdmU7CiAgICAgICAgd2lkdGg6IDEwMC4wJTsKICAgICAgICBoZWlnaHQ6IDEwMC4wJTsKICAgICAgICBsZWZ0OiAwLjAlOwogICAgICAgIHRvcDogMC4wJTsKICAgICAgICB9CiAgICA8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5PiAgICAKICAgIAogICAgPGRpdiBjbGFzcz0iZm9saXVtLW1hcCIgaWQ9Im1hcF9kODU0ODFmZWNmMzI0ZmFkOGZjNjM1YmE0OTE5NjllMyIgPjwvZGl2Pgo8L2JvZHk+CjxzY3JpcHQ+ICAgIAogICAgCiAgICAKICAgICAgICB2YXIgYm91bmRzID0gbnVsbDsKICAgIAoKICAgIHZhciBtYXBfZDg1NDgxZmVjZjMyNGZhZDhmYzYzNWJhNDkxOTY5ZTMgPSBMLm1hcCgKICAgICAgICAnbWFwX2Q4NTQ4MWZlY2YzMjRmYWQ4ZmM2MzViYTQ5MTk2OWUzJywgewogICAgICAgIGNlbnRlcjogWzQyLjcwOTI5LCAtODguMjMxNzFdLAogICAgICAgIHpvb206IDUsCiAgICAgICAgbWF4Qm91bmRzOiBib3VuZHMsCiAgICAgICAgbGF5ZXJzOiBbXSwKICAgICAgICB3b3JsZENvcHlKdW1wOiBmYWxzZSwKICAgICAgICBjcnM6IEwuQ1JTLkVQU0czODU3LAogICAgICAgIHpvb21Db250cm9sOiB0cnVlLAogICAgICAgIH0pOwoKICAgIAogICAgCiAgICB2YXIgdGlsZV9sYXllcl9lMzk3NmFjNzk3MDU0NmRiYWIzNmEyYjlhZmY1NWJmNyA9IEwudGlsZUxheWVyKAogICAgICAgICdodHRwczovL3N0YW1lbi10aWxlcy17c30uYS5zc2wuZmFzdGx5Lm5ldC90ZXJyYWluL3t6fS97eH0ve3l9LmpwZycsCiAgICAgICAgewogICAgICAgICJhdHRyaWJ1dGlvbiI6IG51bGwsCiAgICAgICAgImRldGVjdFJldGluYSI6IGZhbHNlLAogICAgICAgICJtYXhOYXRpdmVab29tIjogMTgsCiAgICAgICAgIm1heFpvb20iOiAxOCwKICAgICAgICAibWluWm9vbSI6IDAsCiAgICAgICAgIm5vV3JhcCI6IGZhbHNlLAogICAgICAgICJvcGFjaXR5IjogMSwKICAgICAgICAic3ViZG9tYWlucyI6ICJhYmMiLAogICAgICAgICJ0bXMiOiBmYWxzZQp9KS5hZGRUbyhtYXBfZDg1NDgxZmVjZjMyNGZhZDhmYzYzNWJhNDkxOTY5ZTMpOwogICAgCiAgICAgICAgdmFyIG1hcmtlcl85MWYzYWVkNTY1NmQ0MDE2YTJkYTE4YjkzMzg3ZTQwNiA9IEwubWFya2VyKAogICAgICAgICAgICBbNDIuNzA5MjksIC04OC4yMzE3MV0sCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGljb246IG5ldyBMLkljb24uRGVmYXVsdCgpCiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICkuYWRkVG8obWFwX2Q4NTQ4MWZlY2YzMjRmYWQ4ZmM2MzViYTQ5MTk2OWUzKTsKICAgICAgICAKICAgIAogICAgICAgICAgICB2YXIgcG9wdXBfZTFmMGM1Y2VhZjUyNDU2NGE4NjM1MzEwY2U0MGU2MjIgPSBMLnBvcHVwKHttYXhXaWR0aDogJzMwMCcKICAgICAgICAgICAgCiAgICAgICAgICAgIH0pOwoKICAgICAgICAgICAgCiAgICAgICAgICAgICAgICB2YXIgaHRtbF8yMGM3M2Y2N2RhZjA0MzUwOTg5NmQ4MDc5Y2U4MmU2OCA9ICQoYDxkaXYgaWQ9Imh0bWxfMjBjNzNmNjdkYWYwNDM1MDk4OTZkODA3OWNlODJlNjgiIHN0eWxlPSJ3aWR0aDogMTAwLjAlOyBoZWlnaHQ6IDEwMC4wJTsiPkFzY2xlcGlhcyBzeXJpYWNhPC9kaXY+YClbMF07CiAgICAgICAgICAgICAgICBwb3B1cF9lMWYwYzVjZWFmNTI0NTY0YTg2MzUzMTBjZTQwZTYyMi5zZXRDb250ZW50KGh0bWxfMjBjNzNmNjdkYWYwNDM1MDk4OTZkODA3OWNlODJlNjgpOwogICAgICAgICAgICAKCiAgICAgICAgICAgIG1hcmtlcl85MWYzYWVkNTY1NmQ0MDE2YTJkYTE4YjkzMzg3ZTQwNi5iaW5kUG9wdXAocG9wdXBfZTFmMGM1Y2VhZjUyNDU2NGE4NjM1MzEwY2U0MGU2MjIpCiAgICAgICAgICAgIDsKCiAgICAgICAgICAgIAogICAgICAgIAogICAgCiAgICAgICAgdmFyIG1hcmtlcl8wMDMzYTc3Y2NmYjg0MWU4YWVkYzgyMTNjNzBiYjM3NiA9IEwubWFya2VyKAogICAgICAgICAgICBbNDIuNjc4MDcsIC04OC4yNzYyXSwKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgaWNvbjogbmV3IEwuSWNvbi5EZWZhdWx0KCkKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgKS5hZGRUbyhtYXBfZDg1NDgxZmVjZjMyNGZhZDhmYzYzNWJhNDkxOTY5ZTMpOwogICAgICAgIAogICAgCiAgICAgICAgICAgIHZhciBwb3B1cF9jYTRlYWVlZTY1ZmU0NmY4YTM3ZTk4MDEyNzk1ZmM0ZSA9IEwucG9wdXAoe21heFdpZHRoOiAnMzAwJwogICAgICAgICAgICAKICAgICAgICAgICAgfSk7CgogICAgICAgICAgICAKICAgICAgICAgICAgICAgIHZhciBodG1sXzQ1ZjFhYzQ4N2IyYTQyZjE5OWYxNzE0NGQ0YWZkOWFiID0gJChgPGRpdiBpZD0iaHRtbF80NWYxYWM0ODdiMmE0MmYxOTlmMTcxNDRkNGFmZDlhYiIgc3R5bGU9IndpZHRoOiAxMDAuMCU7IGhlaWdodDogMTAwLjAlOyI+TWFsdXMgc3lsdmVzdHJpczwvZGl2PmApWzBdOwogICAgICAgICAgICAgICAgcG9wdXBfY2E0ZWFlZWU2NWZlNDZmOGEzN2U5ODAxMjc5NWZjNGUuc2V0Q29udGVudChodG1sXzQ1ZjFhYzQ4N2IyYTQyZjE5OWYxNzE0NGQ0YWZkOWFiKTsKICAgICAgICAgICAgCgogICAgICAgICAgICBtYXJrZXJfMDAzM2E3N2NjZmI4NDFlOGFlZGM4MjEzYzcwYmIzNzYuYmluZFBvcHVwKHBvcHVwX2NhNGVhZWVlNjVmZTQ2ZjhhMzdlOTgwMTI3OTVmYzRlKQogICAgICAgICAgICA7CgogICAgICAgICAgICAKICAgICAgICAKICAgIAogICAgICAgIHZhciBtYXJrZXJfNzEyOTYyZDQyY2U1NGVhOWE1ZmZlYzdkMGEwZTM0NjMgPSBMLm1hcmtlcigKICAgICAgICAgICAgWzM5LjM3NzI2LCAtMTA1LjgwMDZdLAogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBpY29uOiBuZXcgTC5JY29uLkRlZmF1bHQoKQogICAgICAgICAgICAgICAgfQogICAgICAgICAgICApLmFkZFRvKG1hcF9kODU0ODFmZWNmMzI0ZmFkOGZjNjM1YmE0OTE5NjllMyk7CiAgICAgICAgCiAgICAKICAgICAgICAgICAgdmFyIHBvcHVwXzkxMzg5OTFhNzQzZjRhMjFhMGMxYzRjNTA0MmZiZjcyID0gTC5wb3B1cCh7bWF4V2lkdGg6ICczMDAnCiAgICAgICAgICAgIAogICAgICAgICAgICB9KTsKCiAgICAgICAgICAgIAogICAgICAgICAgICAgICAgdmFyIGh0bWxfNzg2ZjQ5ZTVjYmFmNGI1ODkzZjM3MWNlNjQ3YzUyMzIgPSAkKGA8ZGl2IGlkPSJodG1sXzc4NmY0OWU1Y2JhZjRiNTg5M2YzNzFjZTY0N2M1MjMyIiBzdHlsZT0id2lkdGg6IDEwMC4wJTsgaGVpZ2h0OiAxMDAuMCU7Ij5QZWRpY3VsYXJpcyBjcmVudWxhdGE8L2Rpdj5gKVswXTsKICAgICAgICAgICAgICAgIHBvcHVwXzkxMzg5OTFhNzQzZjRhMjFhMGMxYzRjNTA0MmZiZjcyLnNldENvbnRlbnQoaHRtbF83ODZmNDllNWNiYWY0YjU4OTNmMzcxY2U2NDdjNTIzMik7CiAgICAgICAgICAgIAoKICAgICAgICAgICAgbWFya2VyXzcxMjk2MmQ0MmNlNTRlYTlhNWZmZWM3ZDBhMGUzNDYzLmJpbmRQb3B1cChwb3B1cF85MTM4OTkxYTc0M2Y0YTIxYTBjMWM0YzUwNDJmYmY3MikKICAgICAgICAgICAgOwoKICAgICAgICAgICAgCiAgICAgICAgCiAgICAKICAgICAgICB2YXIgbWFya2VyX2MzNzcwMTZiMGVkNDQ2NjY5MDBhOGU1OTg4MDU2MWRjID0gTC5tYXJrZXIoCiAgICAgICAgICAgIFszNy44ODU4OCwgLTExOS4yNTddLAogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBpY29uOiBuZXcgTC5JY29uLkRlZmF1bHQoKQogICAgICAgICAgICAgICAgfQogICAgICAgICAgICApLmFkZFRvKG1hcF9kODU0ODFmZWNmMzI0ZmFkOGZjNjM1YmE0OTE5NjllMyk7CiAgICAgICAgCiAgICAKICAgICAgICAgICAgdmFyIHBvcHVwXzQyYzY3YzU3ZTFjMTRlZTI5Mjg4YjkwYzdjN2QyMDUxID0gTC5wb3B1cCh7bWF4V2lkdGg6ICczMDAnCiAgICAgICAgICAgIAogICAgICAgICAgICB9KTsKCiAgICAgICAgICAgIAogICAgICAgICAgICAgICAgdmFyIGh0bWxfMjEwZWZiZDFhNDFhNDAzMzllYzg4OTcxZTg0Y2IyZGEgPSAkKGA8ZGl2IGlkPSJodG1sXzIxMGVmYmQxYTQxYTQwMzM5ZWM4ODk3MWU4NGNiMmRhIiBzdHlsZT0id2lkdGg6IDEwMC4wJTsgaGVpZ2h0OiAxMDAuMCU7Ij5QZWRpY3VsYXJpcyBhdHRvbGxlbnM8L2Rpdj5gKVswXTsKICAgICAgICAgICAgICAgIHBvcHVwXzQyYzY3YzU3ZTFjMTRlZTI5Mjg4YjkwYzdjN2QyMDUxLnNldENvbnRlbnQoaHRtbF8yMTBlZmJkMWE0MWE0MDMzOWVjODg5NzFlODRjYjJkYSk7CiAgICAgICAgICAgIAoKICAgICAgICAgICAgbWFya2VyX2MzNzcwMTZiMGVkNDQ2NjY5MDBhOGU1OTg4MDU2MWRjLmJpbmRQb3B1cChwb3B1cF80MmM2N2M1N2UxYzE0ZWUyOTI4OGI5MGM3YzdkMjA1MSkKICAgICAgICAgICAgOwoKICAgICAgICAgICAgCiAgICAgICAgCiAgICAKICAgICAgICB2YXIgbWFya2VyX2NmZDM5MjYyZTY3MTQ4MWE4NGQ5Yzk3YTg2NTAyYmU4ID0gTC5tYXJrZXIoCiAgICAgICAgICAgIFszNy45MTUsIC0xMTkuMjYyXSwKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgaWNvbjogbmV3IEwuSWNvbi5EZWZhdWx0KCkKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgKS5hZGRUbyhtYXBfZDg1NDgxZmVjZjMyNGZhZDhmYzYzNWJhNDkxOTY5ZTMpOwogICAgICAgIAogICAgCiAgICAgICAgICAgIHZhciBwb3B1cF8zZTcyNTQ4MDA2MWY0Y2ZiOThiODBmOGJkYzMyOGFiMyA9IEwucG9wdXAoe21heFdpZHRoOiAnMzAwJwogICAgICAgICAgICAKICAgICAgICAgICAgfSk7CgogICAgICAgICAgICAKICAgICAgICAgICAgICAgIHZhciBodG1sX2FmMjY3OGQyOGJkMTQ3NzQ4YTU5ODExMjcxZjkxNGYyID0gJChgPGRpdiBpZD0iaHRtbF9hZjI2NzhkMjhiZDE0Nzc0OGE1OTgxMTI3MWY5MTRmMiIgc3R5bGU9IndpZHRoOiAxMDAuMCU7IGhlaWdodDogMTAwLjAlOyI+UGVkaWN1bGFyaXMgZ3JvZW5sYW5kaWNhPC9kaXY+YClbMF07CiAgICAgICAgICAgICAgICBwb3B1cF8zZTcyNTQ4MDA2MWY0Y2ZiOThiODBmOGJkYzMyOGFiMy5zZXRDb250ZW50KGh0bWxfYWYyNjc4ZDI4YmQxNDc3NDhhNTk4MTEyNzFmOTE0ZjIpOwogICAgICAgICAgICAKCiAgICAgICAgICAgIG1hcmtlcl9jZmQzOTI2MmU2NzE0ODFhODRkOWM5N2E4NjUwMmJlOC5iaW5kUG9wdXAocG9wdXBfM2U3MjU0ODAwNjFmNGNmYjk4YjgwZjhiZGMzMjhhYjMpCiAgICAgICAgICAgIDsKCiAgICAgICAgICAgIAogICAgICAgIAogICAgCiAgICAgICAgdmFyIG1hcmtlcl8wNGIzYjM5NjVlNjc0MjI1OTMyZmYzYzMxMGQxODU4MyA9IEwubWFya2VyKAogICAgICAgICAgICBbNDcuOTEzNDI3ODIsIC05OS4wMzQxNDY5NF0sCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGljb246IG5ldyBMLkljb24uRGVmYXVsdCgpCiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICkuYWRkVG8obWFwX2Q4NTQ4MWZlY2YzMjRmYWQ4ZmM2MzViYTQ5MTk2OWUzKTsKICAgICAgICAKICAgIAogICAgICAgICAgICB2YXIgcG9wdXBfYzkwOTUxOGM3YmU0NDkxNjkwMGNlNjQ5NzdjZDliNzAgPSBMLnBvcHVwKHttYXhXaWR0aDogJzMwMCcKICAgICAgICAgICAgCiAgICAgICAgICAgIH0pOwoKICAgICAgICAgICAgCiAgICAgICAgICAgICAgICB2YXIgaHRtbF83YWEzNGE5ZWJhNjU0YjZhOTU1ZTIzOTJiOTZmYmYwMyA9ICQoYDxkaXYgaWQ9Imh0bWxfN2FhMzRhOWViYTY1NGI2YTk1NWUyMzkyYjk2ZmJmMDMiIHN0eWxlPSJ3aWR0aDogMTAwLjAlOyBoZWlnaHQ6IDEwMC4wJTsiPkJyb211cyBpbmVybWlzPC9kaXY+YClbMF07CiAgICAgICAgICAgICAgICBwb3B1cF9jOTA5NTE4YzdiZTQ0OTE2OTAwY2U2NDk3N2NkOWI3MC5zZXRDb250ZW50KGh0bWxfN2FhMzRhOWViYTY1NGI2YTk1NWUyMzkyYjk2ZmJmMDMpOwogICAgICAgICAgICAKCiAgICAgICAgICAgIG1hcmtlcl8wNGIzYjM5NjVlNjc0MjI1OTMyZmYzYzMxMGQxODU4My5iaW5kUG9wdXAocG9wdXBfYzkwOTUxOGM3YmU0NDkxNjkwMGNlNjQ5NzdjZDliNzApCiAgICAgICAgICAgIDsKCiAgICAgICAgICAgIAogICAgICAgIAogICAgCiAgICAgICAgdmFyIG1hcmtlcl84ZjgzZDQ0MGQ3Mjc0MDNiODhlMTNlMjZjMDg4MGIyMiA9IEwubWFya2VyKAogICAgICAgICAgICBbNDcuOTY3MzQ5NjksIC05OC45OTY5NzY2MV0sCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGljb246IG5ldyBMLkljb24uRGVmYXVsdCgpCiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICkuYWRkVG8obWFwX2Q4NTQ4MWZlY2YzMjRmYWQ4ZmM2MzViYTQ5MTk2OWUzKTsKICAgICAgICAKICAgIAogICAgICAgICAgICB2YXIgcG9wdXBfNDg3MjBiYjg4YzM2NGI5MGEyNzdlOWNiMmM1Zjc4YmUgPSBMLnBvcHVwKHttYXhXaWR0aDogJzMwMCcKICAgICAgICAgICAgCiAgICAgICAgICAgIH0pOwoKICAgICAgICAgICAgCiAgICAgICAgICAgICAgICB2YXIgaHRtbF8zZjRiN2Q0NjFlZWM0MTRkOTUyZGU5OWFkZDJkNmNlZSA9ICQoYDxkaXYgaWQ9Imh0bWxfM2Y0YjdkNDYxZWVjNDE0ZDk1MmRlOTlhZGQyZDZjZWUiIHN0eWxlPSJ3aWR0aDogMTAwLjAlOyBoZWlnaHQ6IDEwMC4wJTsiPkFtb3JwaGEgY2FuZXNjZW5zPC9kaXY+YClbMF07CiAgICAgICAgICAgICAgICBwb3B1cF80ODcyMGJiODhjMzY0YjkwYTI3N2U5Y2IyYzVmNzhiZS5zZXRDb250ZW50KGh0bWxfM2Y0YjdkNDYxZWVjNDE0ZDk1MmRlOTlhZGQyZDZjZWUpOwogICAgICAgICAgICAKCiAgICAgICAgICAgIG1hcmtlcl84ZjgzZDQ0MGQ3Mjc0MDNiODhlMTNlMjZjMDg4MGIyMi5iaW5kUG9wdXAocG9wdXBfNDg3MjBiYjg4YzM2NGI5MGEyNzdlOWNiMmM1Zjc4YmUpCiAgICAgICAgICAgIDsKCiAgICAgICAgICAgIAogICAgICAgIAogICAgCiAgICAgICAgdmFyIG1hcmtlcl9kM2I1Y2RiM2FhNTk0NmI5OWUwMzgyNTMxY2MwM2EzZSA9IEwubWFya2VyKAogICAgICAgICAgICBbNDcuOTY0MjcxMTcsIC05OS4wMDEwNjI2NV0sCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGljb246IG5ldyBMLkljb24uRGVmYXVsdCgpCiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICkuYWRkVG8obWFwX2Q4NTQ4MWZlY2YzMjRmYWQ4ZmM2MzViYTQ5MTk2OWUzKTsKICAgICAgICAKICAgIAogICAgICAgICAgICB2YXIgcG9wdXBfNGJlYzU3M2UyZDk4NDkyN2I3ZGUyYTJkNmFiOTQzNzYgPSBMLnBvcHVwKHttYXhXaWR0aDogJzMwMCcKICAgICAgICAgICAgCiAgICAgICAgICAgIH0pOwoKICAgICAgICAgICAgCiAgICAgICAgICAgICAgICB2YXIgaHRtbF8wMDgzNDNiMjY1ZTY0MmI2YTY1MzIzZDE5YTMxNGY0MyA9ICQoYDxkaXYgaWQ9Imh0bWxfMDA4MzQzYjI2NWU2NDJiNmE2NTMyM2QxOWEzMTRmNDMiIHN0eWxlPSJ3aWR0aDogMTAwLjAlOyBoZWlnaHQ6IDEwMC4wJTsiPkxhY3R1Y2EgdGF0YXJpY2E8L2Rpdj5gKVswXTsKICAgICAgICAgICAgICAgIHBvcHVwXzRiZWM1NzNlMmQ5ODQ5MjdiN2RlMmEyZDZhYjk0Mzc2LnNldENvbnRlbnQoaHRtbF8wMDgzNDNiMjY1ZTY0MmI2YTY1MzIzZDE5YTMxNGY0Myk7CiAgICAgICAgICAgIAoKICAgICAgICAgICAgbWFya2VyX2QzYjVjZGIzYWE1OTQ2Yjk5ZTAzODI1MzFjYzAzYTNlLmJpbmRQb3B1cChwb3B1cF80YmVjNTczZTJkOTg0OTI3YjdkZTJhMmQ2YWI5NDM3NikKICAgICAgICAgICAgOwoKICAgICAgICAgICAgCiAgICAgICAgCiAgICAKICAgICAgICB2YXIgbWFya2VyXzg3ZmM4YmQzOWM5NDQ4ZjI4Y2MzM2QzZmZkNGM0Mjk1ID0gTC5tYXJrZXIoCiAgICAgICAgICAgIFs0Ny45NjQ5Mjg4NSwgLTk4Ljk5OTMyNzQ4XSwKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgaWNvbjogbmV3IEwuSWNvbi5EZWZhdWx0KCkKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgKS5hZGRUbyhtYXBfZDg1NDgxZmVjZjMyNGZhZDhmYzYzNWJhNDkxOTY5ZTMpOwogICAgICAgIAogICAgCiAgICAgICAgICAgIHZhciBwb3B1cF80NjFlNWIyMGE2Yzg0Mjk3OTVjNWMzYzI5NmUxOWY1YiA9IEwucG9wdXAoe21heFdpZHRoOiAnMzAwJwogICAgICAgICAgICAKICAgICAgICAgICAgfSk7CgogICAgICAgICAgICAKICAgICAgICAgICAgICAgIHZhciBodG1sX2E5OWRhODEyOTJjYjQwMDQ5ZDcyMWU3M2RhMzIxNmYyID0gJChgPGRpdiBpZD0iaHRtbF9hOTlkYTgxMjkyY2I0MDA0OWQ3MjFlNzNkYTMyMTZmMiIgc3R5bGU9IndpZHRoOiAxMDAuMCU7IGhlaWdodDogMTAwLjAlOyI+U3BpcmFlYSBhbGJhPC9kaXY+YClbMF07CiAgICAgICAgICAgICAgICBwb3B1cF80NjFlNWIyMGE2Yzg0Mjk3OTVjNWMzYzI5NmUxOWY1Yi5zZXRDb250ZW50KGh0bWxfYTk5ZGE4MTI5MmNiNDAwNDlkNzIxZTczZGEzMjE2ZjIpOwogICAgICAgICAgICAKCiAgICAgICAgICAgIG1hcmtlcl84N2ZjOGJkMzljOTQ0OGYyOGNjMzNkM2ZmZDRjNDI5NS5iaW5kUG9wdXAocG9wdXBfNDYxZTViMjBhNmM4NDI5Nzk1YzVjM2MyOTZlMTlmNWIpCiAgICAgICAgICAgIDsKCiAgICAgICAgICAgIAogICAgICAgIAogICAgCiAgICAgICAgdmFyIG1hcmtlcl83OGUxNzY3NWQ4MWY0OTI1YTNmNWI4NjliYTYzMGI2NSA9IEwubWFya2VyKAogICAgICAgICAgICBbNDcuOTcwMzE2MjcsIC05OC45OTcwNzQ1Nl0sCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGljb246IG5ldyBMLkljb24uRGVmYXVsdCgpCiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICkuYWRkVG8obWFwX2Q4NTQ4MWZlY2YzMjRmYWQ4ZmM2MzViYTQ5MTk2OWUzKTsKICAgICAgICAKICAgIAogICAgICAgICAgICB2YXIgcG9wdXBfMzhlNDhmNWVkNjZiNDkzYjgzNzdlNDdhNmRjODE1MDggPSBMLnBvcHVwKHttYXhXaWR0aDogJzMwMCcKICAgICAgICAgICAgCiAgICAgICAgICAgIH0pOwoKICAgICAgICAgICAgCiAgICAgICAgICAgICAgICB2YXIgaHRtbF9mMjgyNGRiOTYxOGY0M2M2ODg1OGJjOTY4N2NhZDQ3NiA9ICQoYDxkaXYgaWQ9Imh0bWxfZjI4MjRkYjk2MThmNDNjNjg4NThiYzk2ODdjYWQ0NzYiIHN0eWxlPSJ3aWR0aDogMTAwLjAlOyBoZWlnaHQ6IDEwMC4wJTsiPkRhbGVhIHB1cnB1cmVhPC9kaXY+YClbMF07CiAgICAgICAgICAgICAgICBwb3B1cF8zOGU0OGY1ZWQ2NmI0OTNiODM3N2U0N2E2ZGM4MTUwOC5zZXRDb250ZW50KGh0bWxfZjI4MjRkYjk2MThmNDNjNjg4NThiYzk2ODdjYWQ0NzYpOwogICAgICAgICAgICAKCiAgICAgICAgICAgIG1hcmtlcl83OGUxNzY3NWQ4MWY0OTI1YTNmNWI4NjliYTYzMGI2NS5iaW5kUG9wdXAocG9wdXBfMzhlNDhmNWVkNjZiNDkzYjgzNzdlNDdhNmRjODE1MDgpCiAgICAgICAgICAgIDsKCiAgICAgICAgICAgIAogICAgICAgIAogICAgCiAgICAgICAgdmFyIG1hcmtlcl83ZmJhNmQ3OGJlMDc0NTNmOTg4YTVjOGQ4ZjEwYjM1NyA9IEwubWFya2VyKAogICAgICAgICAgICBbNDcuOTY0Nzg4OTIsIC05OC45OTc5NTYxNF0sCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIGljb246IG5ldyBMLkljb24uRGVmYXVsdCgpCiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICkuYWRkVG8obWFwX2Q4NTQ4MWZlY2YzMjRmYWQ4ZmM2MzViYTQ5MTk2OWUzKTsKICAgICAgICAKICAgIAogICAgICAgICAgICB2YXIgcG9wdXBfOTE1OTM1MDk5MTA0NDExNjk0YTc0OWQ4NDgxYWJjNTggPSBMLnBvcHVwKHttYXhXaWR0aDogJzMwMCcKICAgICAgICAgICAgCiAgICAgICAgICAgIH0pOwoKICAgICAgICAgICAgCiAgICAgICAgICAgICAgICB2YXIgaHRtbF9hYzRlN2IyMjg4NmU0ODBmYWJjYzMxYzQ4MDU2ODZiNyA9ICQoYDxkaXYgaWQ9Imh0bWxfYWM0ZTdiMjI4ODZlNDgwZmFiY2MzMWM0ODA1Njg2YjciIHN0eWxlPSJ3aWR0aDogMTAwLjAlOyBoZWlnaHQ6IDEwMC4wJTsiPlN5bXBob3JpY2FycG9zIG9jY2lkZW50YWxpczwvZGl2PmApWzBdOwogICAgICAgICAgICAgICAgcG9wdXBfOTE1OTM1MDk5MTA0NDExNjk0YTc0OWQ4NDgxYWJjNTguc2V0Q29udGVudChodG1sX2FjNGU3YjIyODg2ZTQ4MGZhYmNjMzFjNDgwNTY4NmI3KTsKICAgICAgICAgICAgCgogICAgICAgICAgICBtYXJrZXJfN2ZiYTZkNzhiZTA3NDUzZjk4OGE1YzhkOGYxMGIzNTcuYmluZFBvcHVwKHBvcHVwXzkxNTkzNTA5OTEwNDQxMTY5NGE3NDlkODQ4MWFiYzU4KQogICAgICAgICAgICA7CgogICAgICAgICAgICAKICAgICAgICAKICAgIAogICAgICAgIHZhciBtYXJrZXJfOGRkMzcyZDNlODU1NDZhNDllMGI2MTFkZjU5NjA1MzMgPSBMLm1hcmtlcigKICAgICAgICAgICAgWzQ3LjMwMTg0LCAtOTcuNTgzNjhdLAogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBpY29uOiBuZXcgTC5JY29uLkRlZmF1bHQoKQogICAgICAgICAgICAgICAgfQogICAgICAgICAgICApLmFkZFRvKG1hcF9kODU0ODFmZWNmMzI0ZmFkOGZjNjM1YmE0OTE5NjllMyk7CiAgICAgICAgCiAgICAKICAgICAgICAgICAgdmFyIHBvcHVwXzczNGFmOWJlZjIwZTQ2ZWFiNWVlMjgzYmQwMjg2NWNiID0gTC5wb3B1cCh7bWF4V2lkdGg6ICczMDAnCiAgICAgICAgICAgIAogICAgICAgICAgICB9KTsKCiAgICAgICAgICAgIAogICAgICAgICAgICAgICAgdmFyIGh0bWxfYWNkMGU3YzYyNzYzNDVlNTkxNjU0ZDViMzIyZGMzMmYgPSAkKGA8ZGl2IGlkPSJodG1sX2FjZDBlN2M2Mjc2MzQ1ZTU5MTY1NGQ1YjMyMmRjMzJmIiBzdHlsZT0id2lkdGg6IDEwMC4wJTsgaGVpZ2h0OiAxMDAuMCU7Ij5PbGlnb25ldXJvbiByaWdpZHVtPC9kaXY+YClbMF07CiAgICAgICAgICAgICAgICBwb3B1cF83MzRhZjliZWYyMGU0NmVhYjVlZTI4M2JkMDI4NjVjYi5zZXRDb250ZW50KGh0bWxfYWNkMGU3YzYyNzYzNDVlNTkxNjU0ZDViMzIyZGMzMmYpOwogICAgICAgICAgICAKCiAgICAgICAgICAgIG1hcmtlcl84ZGQzNzJkM2U4NTU0NmE0OWUwYjYxMWRmNTk2MDUzMy5iaW5kUG9wdXAocG9wdXBfNzM0YWY5YmVmMjBlNDZlYWI1ZWUyODNiZDAyODY1Y2IpCiAgICAgICAgICAgIDsKCiAgICAgICAgICAgIAogICAgICAgIAo8L3NjcmlwdD4=\" style=\"position:absolute;width:100%;height:100%;left:0;top:0;border:none !important;\" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe></div></div>"
+      ],
+      "text/plain": [
+       "<folium.folium.Map at 0x118a29eb8>"
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "map = folium.Map(location=[42.70929, -88.23171], zoom_start=5,     tiles='Stamen Terrain'\n",
+    ")\n",
+    "for point in range(0, len(locationlist)):\n",
+    "    folium.Marker(newlist[point], popup=df_counters['plant'][point]).add_to(map)\n",
+    "map"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "p.values()\n",
+    "count = p.values()\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[1, 1, 4, 51, 161, 1, 2, 1, 1, 2, 1, 1]\n"
+     ]
+    }
+   ],
+   "source": [
+    "j = []\n",
+    "for k in count:\n",
+    "    j.append(k)\n",
+    "print(j)        "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "\n",
+    "\n",
+    "def chartjs(chartType, data, options={}, width=\"700px\", height=\"400px\"):\n",
+    "    \"\"\" Custom iphython extension allowing chartjs visualizations\n",
+    "    \n",
+    "    Usage:\n",
+    "        chartjs(chartType, data, options, width=1000, height=400)\n",
+    "    \n",
+    "    Args:\n",
+    "        chartType: one of the supported chart type options (line, bar, radar, polarArea, pie, doughnut)\n",
+    "        data: a python dictionary with datasets to be rapresented and related visualization settings, as expected \n",
+    "              by chart js (see data parameter in http://www.chartjs.org/docs/)\n",
+    "        options: defaults {}; a python dictionary with additional graph options, as expected \n",
+    "              by chart js (see options parameter in http://www.chartjs.org/docs/)\n",
+    "        width: default 700px\n",
+    "        height: default 400px\n",
+    "        \n",
+    "        NB. data and options structure depends on the chartType\n",
+    "    \"\"\"\n",
+    "    display(\n",
+    "        Javascript(\"\"\"\n",
+    "            require(['https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js'], function(chartjs){\n",
+    "                var chartType=\"%s\";\n",
+    "                var data=%s;\n",
+    "                var options=%s;\n",
+    "                var width=\"%s\";\n",
+    "                var height=\"%s\";\n",
+    "                \n",
+    "                element.append('<canvas width=\"' + width + '\" height=\"' + height + '\">s</canvas>');\n",
+    "                var ctx = element.children()[0].getContext(\"2d\");\n",
+    "                \n",
+    "                switch(chartType.toLowerCase()) {\n",
+    "                    \n",
+    "                    case \"line\":\n",
+    "                        var myChart = new Chart(ctx).Line(data, options);\n",
+    "                        break;\n",
+    "                    case \"bar\":\n",
+    "                        var myChart = new Chart(ctx).Bar(data, options);\n",
+    "                        break;\n",
+    "                    case \"radar\":\n",
+    "                        var myChart = new Chart(ctx).Radar(data, options);\n",
+    "                        break;\n",
+    "                    case \"polarArea\":\n",
+    "                        var myChart = new Chart(ctx).PolarArea(data, options);\n",
+    "                        break;\n",
+    "                    case \"pie\":\n",
+    "                        var myChart = new Chart(ctx).Pie(data, options);\n",
+    "                        break;\n",
+    "                    case \"doughnut\":\n",
+    "                        var myChart = new Chart(ctx).Doughnut(data, options);\n",
+    "                        break;\n",
+    "                }\n",
+    "            });\n",
+    "            \"\"\" % (chartType, json.dumps(data), json.dumps(options), width, height)\n",
+    "        )\n",
+    "    )\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "application/javascript": [
+       "\n",
+       "            require(['https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js'], function(chartjs){\n",
+       "                var chartType=\"bar\";\n",
+       "                var data={\"labels\": [\"Asclepias syriaca\", \"Malus sylvestris\", \"Pedicularis crenulata\", \"Pedicularis attollens\", \"Pedicularis groenlandica\", \"Bromus inermis\", \"Amorpha canescens\", \"Lactuca tatarica\", \"Spiraea alba\", \"Dalea purpurea\", \"Symphoricarpos occidentalis\", \"Oligoneuron rigidum\"], \"datasets\": [{\"label\": \"Sample dataset\", \"fillColor\": \"rgba(151,187,205,0.2)\", \"strokeColor\": \"rgba(151,187,205,1)\", \"pointColor\": \"rgba(151,187,205,1)\", \"pointStrokeColor\": \"#fff\", \"pointHighlightFill\": \"#fff\", \"pointHighlightStroke\": \"rgba(151,187,205,1)\", \"data\": [1, 1, 4, 51, 161, 1, 2, 1, 1, 2, 1, 1]}]};\n",
+       "                var options={};\n",
+       "                var width=\"700px\";\n",
+       "                var height=\"400px\";\n",
+       "                \n",
+       "                element.append('<canvas width=\"' + width + '\" height=\"' + height + '\">s</canvas>');\n",
+       "                var ctx = element.children()[0].getContext(\"2d\");\n",
+       "                \n",
+       "                switch(chartType.toLowerCase()) {\n",
+       "                    \n",
+       "                    case \"line\":\n",
+       "                        var myChart = new Chart(ctx).Line(data, options);\n",
+       "                        break;\n",
+       "                    case \"bar\":\n",
+       "                        var myChart = new Chart(ctx).Bar(data, options);\n",
+       "                        break;\n",
+       "                    case \"radar\":\n",
+       "                        var myChart = new Chart(ctx).Radar(data, options);\n",
+       "                        break;\n",
+       "                    case \"polarArea\":\n",
+       "                        var myChart = new Chart(ctx).PolarArea(data, options);\n",
+       "                        break;\n",
+       "                    case \"pie\":\n",
+       "                        var myChart = new Chart(ctx).Pie(data, options);\n",
+       "                        break;\n",
+       "                    case \"doughnut\":\n",
+       "                        var myChart = new Chart(ctx).Doughnut(data, options);\n",
+       "                        break;\n",
+       "                }\n",
+       "            });\n",
+       "            "
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "#Sample extract from an IPython notebook:\n",
+    "\n",
+    "# %run chartjs-ipython.py\n",
+    "\n",
+    "data = {\n",
+    "    \"labels\": i,\n",
+    "    \"datasets\": [\n",
+    "        {\n",
+    "            \"label\": \"Sample dataset\",\n",
+    "            \"fillColor\": \"rgba(151,187,205,0.2)\",\n",
+    "            \"strokeColor\": \"rgba(151,187,205,1)\",\n",
+    "            \"pointColor\": \"rgba(151,187,205,1)\",\n",
+    "            \"pointStrokeColor\": \"#fff\",\n",
+    "            \"pointHighlightFill\": \"#fff\",\n",
+    "            \"pointHighlightStroke\": \"rgba(151,187,205,1)\",\n",
+    "            \"data\": j\n",
+    "        }\n",
+    "]}\n",
+    "\n",
+    "chartjs(\"bar\", data)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.2"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
